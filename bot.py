@@ -1,12 +1,14 @@
 import logging
 import subprocess
 import sys
+from telegram import Update
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
 
-# Function to install missing package using pip
+# Function to install missing packages
 def install_package(package: str):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
-# Try importing google.generativeai, and install if not found
+# Try importing google.generativeai, and install it if not found
 try:
     import google.generativeai as genai
 except ModuleNotFoundError:
@@ -18,21 +20,23 @@ except ModuleNotFoundError:
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load environment variables (make sure to replace with actual values)
+# Load environment variables
 TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
 GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
 
-# Configure Gemini AI
+# Configure the Gemini API
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-pro")
 
-# Telegram bot functions
-def start(update, context):
+# Command to start the bot
+def start(update: Update, context: CallbackContext) -> None:
     update.message.reply_text("Hello! I am your DMart bot. Send me a message, and I will respond using Gemini AI!")
 
-def handle_message(update, context):
+# Handle user messages and generate response
+def handle_message(update: Update, context: CallbackContext) -> None:
     user_message = update.message.text
     try:
+        # Generate a response from Gemini
         response = model.generate_content(user_message)
         bot_reply = response.text if hasattr(response, 'text') else "Sorry, I couldn't understand that."
     except Exception as e:
@@ -41,18 +45,19 @@ def handle_message(update, context):
     
     update.message.reply_text(bot_reply)
 
-# Main function to set up the bot
+# Main function to set up the bot and handlers
 def main():
-    from telegram import Update
-    from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
-    
+    # Initialize the Telegram bot application
     app = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
-    
+
+    # Add handlers for start command and messages
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    
+
+    # Run the bot
     logger.info("Bot is running...")
     app.run_polling()
 
+# Run the bot
 if __name__ == "__main__":
     main()
