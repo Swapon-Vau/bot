@@ -8,11 +8,12 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 def install_package(package: str):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
-# Try importing google.generativeai, and install it if not found
+# Try importing google.generativeai, and install google package if not found
 try:
     import google.generativeai as genai
 except ModuleNotFoundError:
-    print("google.generativeai module not found. Installing...")
+    print("google.generativeai module not found. Installing google and google-generativeai...")
+    install_package("google")
     install_package("google-generativeai")
     import google.generativeai as genai
 
