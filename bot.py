@@ -1,17 +1,16 @@
 import logging
-import os
 import subprocess
 import sys
 
-# Function to install missing packages
+# Function to install missing package using pip
 def install_package(package: str):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
-# Attempt to import the google.generativeai module, install if not available
+# Try importing google.generativeai, and install if not found
 try:
     import google.generativeai as genai
 except ModuleNotFoundError:
-    print("google.generativeai not found, installing...")
+    print("google.generativeai module not found. Installing...")
     install_package("google-generativeai")
     import google.generativeai as genai
 
@@ -19,17 +18,19 @@ except ModuleNotFoundError:
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load environment variables
-TELEGRAM_BOT_TOKEN = "7908149234:AAHDOFkFjA4yDJGl9IWH2d5GDLoK1IVt19E"
-GEMINI_API_KEY = "AIzaSyDDi2gNzOcPrcHe4i_FpZvCQiRpHUpiUOI"
+# Load environment variables (make sure to replace with actual values)
+TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
+GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
 
+# Configure Gemini AI
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-pro")
 
-def start(update: Update, context: CallbackContext) -> None:
+# Telegram bot functions
+def start(update, context):
     update.message.reply_text("Hello! I am your DMart bot. Send me a message, and I will respond using Gemini AI!")
 
-def handle_message(update: Update, context: CallbackContext) -> None:
+def handle_message(update, context):
     user_message = update.message.text
     try:
         response = model.generate_content(user_message)
@@ -40,17 +41,15 @@ def handle_message(update: Update, context: CallbackContext) -> None:
     
     update.message.reply_text(bot_reply)
 
+# Main function to set up the bot
 def main():
+    from telegram import Update
+    from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
+    
     app = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
     
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    
-    logger.info("Bot is running...")
-    app.run_polling()
-
-if __name__ == "__main__":
-    main()
     
     logger.info("Bot is running...")
     app.run_polling()
