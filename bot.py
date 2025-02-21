@@ -1,8 +1,19 @@
 import logging
 import os
-from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
-import google.generativeai as genai
+import subprocess
+import sys
+
+# Function to install missing packages
+def install_package(package: str):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+# Attempt to import the google.generativeai module, install if not available
+try:
+    import google.generativeai as genai
+except ModuleNotFoundError:
+    print("google.generativeai not found, installing...")
+    install_package("google-generativeai")
+    import google.generativeai as genai
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -34,6 +45,12 @@ def main():
     
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    
+    logger.info("Bot is running...")
+    app.run_polling()
+
+if __name__ == "__main__":
+    main()
     
     logger.info("Bot is running...")
     app.run_polling()
