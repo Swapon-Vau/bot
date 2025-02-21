@@ -9,8 +9,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # Load environment variables
-TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
-GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
+TELEGRAM_BOT_TOKEN = "7908149234:AAHDOFkFjA4yDJGl9IWH2d5GDLoK1IVt19E"
+GEMINI_API_KEY = "AIzaSyDDi2gNzOcPrcHe4i_FpZvCQiRpHUpiUOI"
 
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-pro")
